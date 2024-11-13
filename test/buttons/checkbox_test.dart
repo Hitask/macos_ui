@@ -70,4 +70,49 @@ void main() {
       ],
     );
   });
+
+  testWidgets('MacosCheckbox pressed down state', (tester) async {
+    bool? checked;
+    await tester.pumpWidget(
+      MacosApp(
+        home: MacosWindow(
+          child: MacosScaffold(
+            children: [
+              ContentArea(
+                builder: (context, _) {
+                  return StatefulBuilder(
+                    builder: (context, setState) {
+                      return MacosCheckbox(
+                        value: checked,
+                        onChanged: (value) {
+                          setState(() => checked = value);
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final macosCheckbox = find.byType(MacosCheckbox);
+    expect(macosCheckbox, findsOneWidget);
+
+    final gesture = await tester.startGesture(tester.getCenter(macosCheckbox));
+    await tester.pump();
+    expect(
+      tester.widget<MacosCheckbox>(macosCheckbox).buttonHeldDown,
+      true,
+    );
+
+    await gesture.up();
+    await tester.pump();
+    expect(
+      tester.widget<MacosCheckbox>(macosCheckbox).buttonHeldDown,
+      false,
+    );
+  });
 }
