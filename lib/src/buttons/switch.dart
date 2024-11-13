@@ -143,6 +143,9 @@ class _MacosSwitchState extends State<MacosSwitch>
   // switch must be animated to the position indicated by the widget's value.
   bool needsPositionAnimation = false;
 
+  @visibleForTesting
+  bool buttonHeldDown = false;
+
   @override
   void initState() {
     super.initState();
@@ -208,6 +211,7 @@ class _MacosSwitchState extends State<MacosSwitch>
   void _handleTapDown(TapDownDetails details) {
     if (isInteractive) {
       needsPositionAnimation = false;
+      setState(() => buttonHeldDown = true);
     }
     _reactionController.forward();
   }
@@ -221,12 +225,14 @@ class _MacosSwitchState extends State<MacosSwitch>
   void _handleTapUp(TapUpDetails details) {
     if (isInteractive) {
       needsPositionAnimation = false;
+      setState(() => buttonHeldDown = false);
       _reactionController.reverse();
     }
   }
 
   void _handleTapCancel() {
     if (isInteractive) {
+      setState(() => buttonHeldDown = false);
       _reactionController.reverse();
     }
   }
@@ -275,6 +281,20 @@ class _MacosSwitchState extends State<MacosSwitch>
     super.dispose();
   }
 
+  BoxDecoration _getClickEffectBoxDecoration() {
+    final MacosThemeData theme = MacosTheme.of(context);
+    final isDark = theme.brightness.isDark;
+
+    final color = isDark
+        ? const MacosColor.fromRGBO(255, 255, 255, 0.15)
+        : const MacosColor.fromRGBO(0, 0, 0, 0.06);
+
+    return BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(20),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasMacosTheme(context));
@@ -307,16 +327,21 @@ class _MacosSwitchState extends State<MacosSwitch>
     return Semantics(
       label: widget.semanticLabel,
       checked: widget.value,
-      child: _MacosSwitchRenderObjectWidget(
-        value: widget.value,
-        size: widget.size,
-        activeColor: activeColor,
-        trackColor: trackColor,
-        knobColor: knobColor,
-        borderColor: borderColor,
-        onChanged: widget.onChanged,
-        textDirection: Directionality.of(context),
-        state: this,
+      child: Container(
+        foregroundDecoration: buttonHeldDown
+            ? _getClickEffectBoxDecoration()
+            : const BoxDecoration(),
+        child: _MacosSwitchRenderObjectWidget(
+          value: widget.value,
+          size: widget.size,
+          activeColor: activeColor,
+          trackColor: trackColor,
+          knobColor: knobColor,
+          borderColor: borderColor,
+          onChanged: widget.onChanged,
+          textDirection: Directionality.of(context),
+          state: this,
+        ),
       ),
     );
   }
