@@ -105,4 +105,48 @@ void main() {
       ],
     );
   });
+
+  testWidgets('MacosRadioButton pressed down state', (tester) async {
+    TestOptions? selectedOption = TestOptions.first;
+    await tester.pumpWidget(
+      MacosApp(
+        home: MacosWindow(
+          child: MacosScaffold(
+            children: [
+              ContentArea(
+                builder: (context, _) {
+                  return Center(
+                    child: MacosRadioButton<TestOptions>(
+                      value: TestOptions.first,
+                      groupValue: selectedOption,
+                      onChanged: (value) {
+                        selectedOption = value;
+                      },
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final macosRadioButton = find.byType(MacosRadioButton<TestOptions>);
+    expect(macosRadioButton, findsOneWidget);
+
+    final gesture = await tester.startGesture(tester.getCenter(macosRadioButton));
+    await tester.pump();
+    expect(
+      tester.widget<MacosRadioButton<TestOptions>>(macosRadioButton).buttonHeldDown,
+      true,
+    );
+
+    await gesture.up();
+    await tester.pump();
+    expect(
+      tester.widget<MacosRadioButton<TestOptions>>(macosRadioButton).buttonHeldDown,
+      false,
+    );
+  });
 }

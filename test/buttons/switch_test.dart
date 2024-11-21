@@ -62,4 +62,47 @@ void main() {
       ],
     );
   });
+
+  testWidgets('MacosSwitch pressed down state', (tester) async {
+    bool selected = false;
+    await tester.pumpWidget(
+      MacosApp(
+        home: MacosWindow(
+          child: MacosScaffold(
+            children: [
+              ContentArea(
+                builder: (context, _) {
+                  return Center(
+                    child: MacosSwitch(
+                      value: selected,
+                      onChanged: (value) {
+                        selected = value;
+                      },
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final macosSwitch = find.byType(MacosSwitch);
+    expect(macosSwitch, findsOneWidget);
+
+    final gesture = await tester.startGesture(tester.getCenter(macosSwitch));
+    await tester.pump();
+    expect(
+      tester.widget<MacosSwitch>(macosSwitch).buttonHeldDown,
+      true,
+    );
+
+    await gesture.up();
+    await tester.pump();
+    expect(
+      tester.widget<MacosSwitch>(macosSwitch).buttonHeldDown,
+      false,
+    );
+  });
 }

@@ -682,6 +682,8 @@ MacosSwitch(
 ),
 ```
 
+The `MacosSwitch` widget also has a pressed down state with a slight dimming effect and dark overlay while the mouse is pressed down.
+
 Learn more about switches [here](https://developer.apple.com/design/human-interface-guidelines/toggles).
 
 ## MacosSegmentedControl
